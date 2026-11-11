@@ -1,17 +1,18 @@
 # Device Distance Calculator
 
-A small C#/.NET 8 console application that calculates the great-circle distance between two geographic coordinates using the **Haversine formula**.
+A C#/.NET 8 console application that calculates the great-circle distance between geographic coordinates using the **Haversine formula**.
 
 This project started as a hardcoded Lagos-to-New York calculation. It is being developed into a reusable, validated and tested coordinate-distance tool.
 
 ## Features
 
-- Interactive latitude/longitude input for two locations
+- Interactive coordinate entry
+- Command-line calculation for scripting and automation
+- CSV batch processing for multiple coordinate pairs
 - Coordinate validation (latitude: -90° to 90°; longitude: -180° to 180°)
 - Results in kilometres, miles or metres
 - Haversine calculation using a mean spherical Earth radius of 6,371.0088 km
-- Floating-point safeguards for the Haversine intermediate value
-- Automated unit tests for core calculations and invalid input
+- Floating-point safeguards and automated tests
 
 ## Requirements
 
@@ -23,26 +24,65 @@ Check your installation:
 dotnet --version
 ```
 
-## Run
-
-Clone the repository, enter its directory, and run:
+## Run interactively
 
 ```bash
-git clone https://github.com/dotundosumu0-glitch/device-distance-calculator.git
-cd device-distance-calculator
 dotnet run
 ```
 
-Enter the latitude and longitude of the origin and destination in decimal degrees. Use a decimal point for fractional values. Then select the desired output unit.
+Enter the latitude and longitude of the origin and destination in decimal degrees, then select the output unit.
 
-### Example coordinates
+## Command-line mode
+
+Calculate a single distance without interactive prompts:
+
+```bash
+dotnet run -- --from "6.5244,3.3792" --to "40.7128,-74.0060" --unit km
+```
+
+The coordinate format is `latitude,longitude`. The unit is optional and defaults to kilometres.
+
+Supported units:
+
+| Value | Unit |
+| --- | --- |
+| `km` | Kilometres |
+| `mi` | Miles |
+| `m` | Metres |
+
+Show all command options:
+
+```bash
+dotnet run -- --help
+```
+
+## CSV batch mode
+
+Create an input file named `coordinates.csv` with this exact header and column order:
+
+```csv
+origin_latitude,origin_longitude,destination_latitude,destination_longitude
+6.5244,3.3792,40.7128,-74.0060
+6.5244,3.3792,9.0765,7.3986
+```
+
+Run the batch processor:
+
+```bash
+dotnet run -- --input coordinates.csv --output distances.csv --unit km
+```
+
+The output file contains the original four coordinate columns followed by `distance` and `unit`. Each non-empty data row is validated before the output file is written. If a row is invalid, the error identifies its line number and no partial results file is produced.
+
+The CSV format is intentionally numeric and simple: four comma-separated coordinate values per row, with no extra columns or quoted fields.
+
+## Example coordinates
 
 | Location | Latitude | Longitude |
 | --- | ---: | ---: |
 | Lagos, Nigeria | 6.5244 | 3.3792 |
 | New York, USA | 40.7128 | -74.0060 |
-
-The result is approximately 10,000 km (the exact displayed value is calculated by the application).
+| Abuja, Nigeria | 9.0765 | 7.3986 |
 
 ## Run tests
 
@@ -50,7 +90,7 @@ The result is approximately 10,000 km (the exact displayed value is calculated b
 dotnet test Tests/DeviceDistanceCalculator.Tests.csproj
 ```
 
-The test suite covers identical points, a known city-pair range, symmetry, unit conversion, and invalid/non-finite coordinates.
+Tests cover identical points, a known city-pair range, symmetry, unit conversion, invalid/non-finite coordinates, CSV output, and invalid batch rows.
 
 ## Project structure
 
@@ -58,11 +98,13 @@ The test suite covers identical points, a known city-pair range, symmetry, unit 
 .
 ├── DeviceDistanceCalculator.csproj
 ├── GeoDistance.cs
+├── CoordinateCsvProcessor.cs
 ├── program.cs
 ├── README.md
 └── Tests/
     ├── DeviceDistanceCalculator.Tests.csproj
-    └── GeoDistanceTests.cs
+    ├── GeoDistanceTests.cs
+    └── CoordinateCsvProcessorTests.cs
 ```
 
 ## How it works
@@ -79,16 +121,15 @@ Here, φ represents latitude in radians, λ represents longitude in radians, and
 
 ## Limitations
 
-- Assumes a spherical Earth; it is an approximation rather than an ellipsoidal geodesic calculation.
+- Assumes a spherical Earth; this is an approximation rather than an ellipsoidal geodesic calculation.
 - Calculates straight-line surface distance, not road distance, travel time or live device-to-device range.
 - Coordinates must be supplied in decimal degrees.
 
 ## Roadmap
 
-- [ ] Add command-line arguments for scripting and automation
-- [ ] Add CSV/batch coordinate processing
 - [ ] Compare spherical results with an ellipsoidal geodesic implementation
 - [ ] Publish benchmark and accuracy notes
+- [ ] Add optional named locations to batch records
 
 ## License
 
