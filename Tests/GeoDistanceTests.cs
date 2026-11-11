@@ -1,4 +1,5 @@
 using DeviceDistanceCalculator;
+using Xunit;
 
 namespace DeviceDistanceCalculator.Tests;
 
