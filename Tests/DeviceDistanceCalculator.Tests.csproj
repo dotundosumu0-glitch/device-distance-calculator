@@ -15,6 +15,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../DeviceDistanceCalculator.csproj" />
+    <ProjectReference Include="../DeviceDistanceCalculator.csproj" />
   </ItemGroup>
 </Project>
