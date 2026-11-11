@@ -28,7 +28,7 @@ public static class CoordinateCsvProcessor
 
         var output = new List<string>
         {
-            $"{ExpectedHeader},distance,{GeoDistance.GetUnitLabel(unit)}"
+            $"{ExpectedHeader},distance,unit"
         };
 
         for (int index = 1; index < lines.Length; index++)
@@ -52,7 +52,7 @@ public static class CoordinateCsvProcessor
                 var destination = new GeoCoordinate(destinationLatitude, destinationLongitude);
                 double distance = GeoDistance.Calculate(origin, destination, unit);
 
-                output.Add($"{string.Join(",", fields.Select(field => field.Trim()))},{distance.ToString("F3", CultureInfo.InvariantCulture)}");
+                output.Add($"{string.Join(",", fields.Select(field => field.Trim()))},{distance.ToString("F3", CultureInfo.InvariantCulture)},{GeoDistance.GetUnitLabel(unit)}");
             }
             catch (Exception ex) when (ex is FormatException or ArgumentOutOfRangeException)
             {
