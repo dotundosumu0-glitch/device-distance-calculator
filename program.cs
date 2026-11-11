@@ -1,31 +1,72 @@
-using System;
+using System.Globalization;
 
-class Program
+namespace DeviceDistanceCalculator;
+
+internal static class Program
 {
-    static void Main()
+    private static int Main()
     {
-        // Example coordinates (latitude, longitude)
-        double lat1 = 6.5244;   // Lagos
-        double lon1 = 3.3792;
-        double lat2 = 40.7128;  // New York
-        double lon2 = -74.0060;
+        Console.WriteLine("DEVICE DISTANCE CALCULATOR");
+        Console.WriteLine("-------------------------");
+        Console.WriteLine("Calculates great-circle distance between two geographic coordinates.\n");
 
-        double distance = Haversine(lat1, lon1, lat2, lon2);
-        Console.WriteLine($"Distance: {distance} km");
+        try
+        {
+            var origin = ReadCoordinate("Origin");
+            var destination = ReadCoordinate("Destination");
+
+            Console.WriteLine("\nChoose output unit:");
+            Console.WriteLine("  1. Kilometres (km)");
+            Console.WriteLine("  2. Miles (mi)");
+            Console.WriteLine("  3. Metres (m)");
+            Console.Write("Selection [1]: ");
+
+            string? choice = Console.ReadLine();
+            DistanceUnit unit = choice?.Trim() switch
+            {
+                "2" => DistanceUnit.Miles,
+                "3" => DistanceUnit.Metres,
+                "" or "1" or null => DistanceUnit.Kilometres,
+                _ => throw new ArgumentException("Choose 1, 2, or 3.")
+            };
+
+            double distance = GeoDistance.Calculate(origin, destination, unit);
+            Console.WriteLine($"\nDistance: {distance:N3} {GeoDistance.GetUnitLabel(unit)}");
+            Console.WriteLine("Method: Haversine (great-circle distance)");
+            Console.WriteLine("\nNote: This is the surface distance over a spherical Earth, not road or travel distance.");
+            return 0;
+        }
+        catch (ArgumentException ex)
+        {
+            Console.Error.WriteLine($"\nInput error: {ex.Message}");
+            return 1;
+        }
     }
 
-    static double Haversine(double lat1, double lon1, double lat2, double lon2)
+    private static GeoCoordinate ReadCoordinate(string label)
     {
-        const double R = 6371; // Earth radius in km
-        double dLat = (lat2 - lat1) * Math.PI / 180.0;
-        double dLon = (lon2 - lon1) * Math.PI / 180.0;
+        Console.WriteLine($"{label} coordinates");
 
-        lat1 = lat1 * Math.PI / 180.0;
-        lat2 = lat2 * Math.PI / 180.0;
+        double latitude = ReadDouble("  Latitude  (-90 to 90): ");
+        double longitude = ReadDouble("  Longitude (-180 to 180): ");
 
-        double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                   Math.Sin(dLon / 2) * Math.Sin(dLon / 2) * Math.Cos(lat1) * Math.Cos(lat2);
-        double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-        return R * c;
+        return new GeoCoordinate(latitude, longitude);
+    }
+
+    private static double ReadDouble(string prompt)
+    {
+        while (true)
+        {
+            Console.Write(prompt);
+            string? input = Console.ReadLine();
+
+            if (double.TryParse(input, NumberStyles.Float, CultureInfo.InvariantCulture, out double value)
+                && double.IsFinite(value))
+            {
+                return value;
+            }
+
+            Console.WriteLine("  Enter a valid number (use a decimal point if needed).");
+        }
     }
 }
