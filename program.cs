@@ -168,7 +168,7 @@ internal static class Program
         Console.WriteLine("  dotnet run");
         Console.WriteLine();
         Console.WriteLine("Calculate one distance:");
-        Console.WriteLine("  dotnet run -- --from \\"6.5244,3.3792\\" --to \\"40.7128,-74.0060\\" --unit km");
+        Console.WriteLine("  dotnet run -- --from 6.5244,3.3792 --to 40.7128,-74.0060 --unit km");
         Console.WriteLine();
         Console.WriteLine("Process a CSV file:");
         Console.WriteLine("  dotnet run -- --input coordinates.csv --output distances.csv --unit mi");
